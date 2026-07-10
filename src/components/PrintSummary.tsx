@@ -3,6 +3,7 @@ import { HORMONES } from '../data/hormones'
 import { SECTIONS } from '../data/sections'
 import { TEXTBOOK_IMAGES } from '../data/textbook'
 import { useProgress } from '../store'
+import { ImageOrFallback } from './ui'
 import {
   NerveHormoneFallback,
   GlucoseLoopFallback,
@@ -20,57 +21,31 @@ function Sheet({ subtitle, children }: { subtitle: string; children: ReactNode }
       className="print-sheet"
       style={{
         border: `1.5px solid ${INK}`,
-        borderRadius: 14,
+        borderRadius: 12,
         background: '#fff',
         overflow: 'hidden',
         color: '#1f2937',
       }}
     >
       {/* 헤더 */}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 12,
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          padding: '18px 22px 16px',
-          borderBottom: `2px solid ${INK}`,
-        }}
-      >
-        <div>
-          <div style={{ fontSize: '10.5pt', color: '#6b7280', letterSpacing: '-0.01em' }}>{UNIT}</div>
-          <h1
-            style={{
-              margin: '4px 0 0',
-              fontSize: '19pt',
-              fontWeight: 700,
-              color: INK,
-              letterSpacing: '-0.03em',
-            }}
-          >
-            {subtitle}
-          </h1>
-          <div style={{ width: 46, height: 4, background: INK, borderRadius: 2, marginTop: 8 }} />
-        </div>
-        <div
+      <div style={{ padding: '12px 18px 10px', borderBottom: `2px solid ${INK}` }}>
+        <div style={{ fontSize: '9.5pt', color: '#6b7280', letterSpacing: '-0.01em' }}>{UNIT}</div>
+        <h1
           style={{
-            border: `1px solid ${LINE}`,
-            borderRadius: 8,
-            padding: '8px 12px',
-            fontSize: '10.5pt',
-            color: '#374151',
-            whiteSpace: 'nowrap',
-            lineHeight: 1.9,
+            margin: '3px 0 0',
+            fontSize: '16pt',
+            fontWeight: 700,
+            color: INK,
+            letterSpacing: '-0.03em',
           }}
         >
-          <div>학번 ________ 이름 ________</div>
-          <div>학습 완료 : ☐</div>
-        </div>
+          {subtitle}
+        </h1>
+        <div style={{ width: 40, height: 3, background: INK, borderRadius: 2, marginTop: 6 }} />
       </div>
 
       {/* 본문 */}
-      <div style={{ padding: '16px 22px 20px' }}>{children}</div>
+      <div style={{ padding: '10px 18px 14px' }}>{children}</div>
     </div>
   )
 }
@@ -81,15 +56,15 @@ function H3({ children }: { children: ReactNode }) {
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 8,
-        fontSize: '13pt',
+        gap: 7,
+        fontSize: '11.5pt',
         fontWeight: 700,
         color: INK,
-        margin: '16px 0 8px',
+        margin: '11px 0 5px',
         letterSpacing: '-0.02em',
       }}
     >
-      <span style={{ width: 8, height: 8, background: INK, borderRadius: 2, display: 'inline-block' }} />
+      <span style={{ width: 7, height: 7, background: INK, borderRadius: 2, display: 'inline-block' }} />
       {children}
     </h3>
   )
@@ -100,12 +75,12 @@ function Concept({ children }: { children: ReactNode }) {
     <div
       style={{
         border: `1px solid ${LINE}`,
-        borderRadius: 10,
+        borderRadius: 8,
         background: '#fafafa',
-        padding: '11px 14px',
-        fontSize: '11pt',
-        lineHeight: 1.6,
-        marginBottom: 8,
+        padding: '7px 11px',
+        fontSize: '10pt',
+        lineHeight: 1.5,
+        marginBottom: 5,
       }}
     >
       {children}
@@ -115,25 +90,22 @@ function Concept({ children }: { children: ReactNode }) {
 
 const th: CSSProperties = {
   border: `1px solid ${INK}`,
-  padding: '7px 9px',
+  padding: '5px 8px',
   background: '#f2f2f2',
   textAlign: 'left',
   fontWeight: 700,
-  fontSize: '10.5pt',
+  fontSize: '10pt',
 }
 const td: CSSProperties = {
   border: `1px solid ${INK}`,
-  padding: '7px 9px',
-  fontSize: '10.5pt',
+  padding: '5px 8px',
+  fontSize: '10pt',
   verticalAlign: 'top',
 }
 
 function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
   return (
-    <table
-      className="pg-avoid"
-      style={{ width: '100%', borderCollapse: 'collapse', margin: '4px 0 6px' }}
-    >
+    <table className="pg-avoid" style={{ width: '100%', borderCollapse: 'collapse', margin: '3px 0 4px' }}>
       <thead>
         <tr>
           {head.map((h) => (
@@ -158,23 +130,23 @@ function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
   )
 }
 
-/* ---------- 그림 ---------- */
+/* ---------- 그림 (2개까지 한 줄, 높이 제한으로 한 페이지 유지) ---------- */
 function Figure({ children, caption }: { children: ReactNode; caption: string }) {
   return (
     <figure
       className="pg-avoid"
       style={{
-        flex: '1 1 240px',
+        flex: '1 1 45%',
         minWidth: 0,
         margin: 0,
         border: `1px solid ${LINE}`,
-        borderRadius: 10,
-        padding: 8,
+        borderRadius: 8,
+        padding: 6,
         background: '#fff',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'center' }}>{children}</div>
-      <figcaption style={{ marginTop: 6, textAlign: 'center', fontSize: '9.5pt', color: '#6b7280' }}>
+      <figcaption style={{ marginTop: 4, textAlign: 'center', fontSize: '9pt', color: '#6b7280' }}>
         {caption}
       </figcaption>
     </figure>
@@ -182,15 +154,17 @@ function Figure({ children, caption }: { children: ReactNode; caption: string })
 }
 
 function FigureRow({ children }: { children: ReactNode }) {
-  return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 6 }}>{children}</div>
+  return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 5 }}>{children}</div>
 }
+
+const IMG_MAX = 165
 
 function TextbookImg({ src, alt }: { src: string; alt: string }) {
   return (
     <img
       src={src}
       alt={alt}
-      style={{ width: '100%', maxHeight: 300, objectFit: 'contain', borderRadius: 6 }}
+      style={{ width: '100%', maxHeight: IMG_MAX, objectFit: 'contain', borderRadius: 6 }}
       onError={(e) => {
         e.currentTarget.style.display = 'none'
       }}
@@ -204,15 +178,15 @@ function DoneList({ sectionId }: { sectionId: string }) {
   return (
     <div
       style={{
-        marginTop: 14,
+        marginTop: 10,
         border: `1px dashed ${LINE}`,
-        borderRadius: 10,
-        padding: '10px 14px',
-        fontSize: '10.5pt',
+        borderRadius: 8,
+        padding: '7px 12px',
+        fontSize: '10pt',
       }}
     >
       <b style={{ color: INK }}>오늘 완성한 탐구</b>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginTop: 4 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px 16px', marginTop: 3 }}>
         {sec.activities.map((a) => (
           <span key={a.id} style={{ whiteSpace: 'nowrap' }}>
             {isDone(a.id) ? '☑' : '☐'} {a.title}
@@ -232,10 +206,10 @@ function Section1Sheet() {
         <b>항상성</b> : 몸 안팎의 환경이 변해도 몸의 상태를 <b>일정</b>하게 유지하려는 성질.
       </Concept>
       <Concept>
-        <b>호르몬</b> : 내분비샘에서 만들어져 <b>혈액</b>을 통해 이동하고, <b>특정 세포·기관</b>에 작용해 몸의 기능을 조절하는 물질.
+        <b>호르몬</b> : 내분비샘에서 만들어져 <b>혈액</b>으로 이동하고, <b>특정 세포·기관</b>에 작용해 몸의 기능을 조절하는 물질.
       </Concept>
       <Concept>
-        <b>호르몬 이동 경로</b> : 내분비샘에서 생성 → 혈액으로 분비 → 온몸으로 이동 → 특정 세포·기관에 작용 → 몸의 기능 조절
+        <b>이동 경로</b> : 내분비샘 생성 → 혈액으로 분비 → 온몸 이동 → 특정 세포·기관에 작용 → 기능 조절
       </Concept>
 
       <H3>신경과 호르몬 비교</H3>
@@ -253,7 +227,12 @@ function Section1Sheet() {
       <H3>학습 그림</H3>
       <FigureRow>
         <Figure caption="신경 vs 호르몬 작용 비교">
-          <NerveHormoneFallback />
+          <ImageOrFallback
+            src="/assets/hormone_vs_nerve.png"
+            alt="신경과 호르몬 작용 비교"
+            fallback={<NerveHormoneFallback />}
+            className="max-h-[165px]"
+          />
         </Figure>
         <Figure caption="교과서: 항상성과 호르몬">
           <TextbookImg src={TEXTBOOK_IMAGES.section1[0].src} alt="구역 1 교과서 그림" />
@@ -283,7 +262,7 @@ function Section2Sheet() {
       />
       <Concept>
         ▶ <b>호르몬은 너무 많거나 너무 적어도</b> 몸의 기능 조절에 문제가 생길 수 있다.
-        <span style={{ color: '#6b7280', fontSize: '9.5pt' }}> (학습용 개념 예시이며 실제 진단이 아님)</span>
+        <span style={{ color: '#6b7280', fontSize: '9pt' }}> (학습용 개념 예시이며 실제 진단이 아님)</span>
       </Concept>
 
       <H3>학습 그림</H3>
@@ -303,7 +282,7 @@ function Section2Sheet() {
 
 function Section3Sheet() {
   return (
-    <Sheet subtitle="정리본 3 · 항상성 유지 방법(체온·혈당량)">
+    <Sheet subtitle="정리본 3 · 항상성 유지(체온·혈당량)">
       <H3>체온 조절 (정상 약 37 ℃)</H3>
       <Table
         head={['구분', '더울 때', '추울 때']}
@@ -326,24 +305,26 @@ function Section3Sheet() {
         ]}
       />
       <Concept>
-        <b>공통 원리</b> : 정상 범위에서 벗어남 → 감지 → (신경·호르몬) 조절 작용 → 정상 범위로 회복
+        <b>공통 원리</b> : 정상 범위에서 벗어남 → 감지 → (신경·호르몬) 조절 → 정상 범위로 회복
       </Concept>
 
       <H3>학습 그림</H3>
       <FigureRow>
         <Figure caption="체온 조절(신경/호르몬 구분)">
-          <TempControlFallback />
+          <ImageOrFallback
+            src="/assets/temperature_control.png"
+            alt="체온 조절 과정"
+            fallback={<TempControlFallback />}
+            className="max-h-[165px]"
+          />
         </Figure>
         <Figure caption="혈당량 조절 순환 고리">
-          <GlucoseLoopFallback />
-        </Figure>
-      </FigureRow>
-      <FigureRow>
-        <Figure caption="교과서: 체온 조절">
-          <TextbookImg src={TEXTBOOK_IMAGES.section3[0].src} alt="구역 3 교과서 그림 1" />
-        </Figure>
-        <Figure caption="교과서: 혈당량 조절">
-          <TextbookImg src={TEXTBOOK_IMAGES.section3[1].src} alt="구역 3 교과서 그림 2" />
+          <ImageOrFallback
+            src="/assets/blood_glucose_control.png"
+            alt="혈당량 조절 과정"
+            fallback={<GlucoseLoopFallback />}
+            className="max-h-[165px]"
+          />
         </Figure>
       </FigureRow>
 
@@ -354,17 +335,16 @@ function Section3Sheet() {
 
 /* ---------- 내보내기 ---------- */
 function Sheets({ target }: { target: string }) {
-  const gap = { marginBottom: 20 }
   return (
     <>
-      {(target === 'section1' || target === 'all') && <div style={gap}><Section1Sheet /></div>}
+      {(target === 'section1' || target === 'all') && <Section1Sheet />}
       {(target === 'section2' || target === 'all') && (
-        <div style={gap} className={target === 'all' ? 'page-break' : ''}>
+        <div className={target === 'all' ? 'page-break' : ''} style={{ marginTop: target === 'all' ? 16 : 0 }}>
           <Section2Sheet />
         </div>
       )}
       {(target === 'section3' || target === 'all') && (
-        <div style={gap} className={target === 'all' ? 'page-break' : ''}>
+        <div className={target === 'all' ? 'page-break' : ''} style={{ marginTop: target === 'all' ? 16 : 0 }}>
           <Section3Sheet />
         </div>
       )}
