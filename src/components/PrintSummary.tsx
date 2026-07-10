@@ -157,7 +157,7 @@ function FigureRow({ children }: { children: ReactNode }) {
   return <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 5 }}>{children}</div>
 }
 
-const IMG_MAX = 165
+const IMG_MAX = 150
 
 function TextbookImg({ src, alt }: { src: string; alt: string }) {
   return (
@@ -231,7 +231,7 @@ function Section1Sheet() {
             src="/assets/hormone_vs_nerve.png"
             alt="신경과 호르몬 작용 비교"
             fallback={<NerveHormoneFallback />}
-            className="max-h-[165px]"
+            className="max-h-[150px]"
           />
         </Figure>
         <Figure caption="교과서: 항상성과 호르몬">
@@ -315,7 +315,7 @@ function Section3Sheet() {
             src="/assets/temperature_control.png"
             alt="체온 조절 과정"
             fallback={<TempControlFallback />}
-            className="max-h-[165px]"
+            className="max-h-[150px]"
           />
         </Figure>
         <Figure caption="혈당량 조절 순환 고리">
@@ -323,7 +323,7 @@ function Section3Sheet() {
             src="/assets/blood_glucose_control.png"
             alt="혈당량 조절 과정"
             fallback={<GlucoseLoopFallback />}
-            className="max-h-[165px]"
+            className="max-h-[150px]"
           />
         </Figure>
       </FigureRow>
