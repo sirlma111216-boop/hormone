@@ -68,12 +68,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       return sec.activities.every((a) => state.done[a.id])
     }
 
-    const isSectionUnlocked = (order: number) => {
-      if (order === 1) return true
-      const prev = SECTIONS.find((s) => s.order === order - 1)
-      if (!prev) return true
-      return prev.activities.every((a) => state.done[a.id])
-    }
+    // 모든 구역을 항상 열어 둔다(순차 잠금 해제)
+    const isSectionUnlocked = (_order: number) => true
 
     const completedCount = ALL_ACTIVITY_IDS.filter((id) => state.done[id]).length
 
