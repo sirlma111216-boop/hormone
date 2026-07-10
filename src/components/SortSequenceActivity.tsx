@@ -79,7 +79,7 @@ export function SortSequenceActivity({
             <button
               key={c}
               onClick={() => addCard(c)}
-              className="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#374151] shadow-sm transition hover:border-[#111111] hover:bg-[#f5f5f5] active:scale-95"
+              className="rounded-lg border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#374151] shadow-sm transition hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md active:scale-95"
             >
               {c}
             </button>

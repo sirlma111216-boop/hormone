@@ -126,8 +126,8 @@ export function TemperatureControlGame({ onDone, done }: { onDone: () => void; d
                 (tagged
                   ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
                   : pending === c.id
-                    ? 'border-[#111111] bg-[#f5f5f5] text-[#111111] ring-2 ring-[#111111]/15'
-                    : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]')
+                    ? 'border-violet-500 bg-violet-100 text-violet-900 ring-2 ring-violet-200 shadow-md'
+                    : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md')
               }
             >
               {tagged && <span aria-hidden className="mr-1">✓</span>}
@@ -181,7 +181,7 @@ export function TemperatureControlGame({ onDone, done }: { onDone: () => void; d
           </Feedback>
           <button
             onClick={nextRound}
-            className="mt-2 rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+            className="mt-2 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
           >
             {round === ROUNDS.length - 1 ? '체온 조절 완료 ✅' : '다음: 추운 상황 →'}
           </button>

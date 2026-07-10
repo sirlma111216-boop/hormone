@@ -47,7 +47,7 @@ export function ActivityView({
         {textbookImages.length > 0 && (
           <button
             onClick={() => setShowTextbook(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-white px-3.5 py-2 text-sm font-semibold text-[#111111] transition hover:border-[#111111] hover:bg-[#f5f5f5] active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-white px-3.5 py-2 text-sm font-semibold text-[#111111] transition hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md active:scale-[0.98]"
           >
             📖 교과서 확인하기
           </button>
@@ -83,14 +83,14 @@ export function ActivityView({
             {nextInSameSection ? (
               <button
                 onClick={() => onOpenActivity(nextId!)}
-                className="rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+                className="rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
               >
                 다음 활동: {nextMeta!.title} →
               </button>
             ) : (
               <button
                 onClick={onHome}
-                className="rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+                className="rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
               >
                 대시보드로 돌아가기 →
               </button>

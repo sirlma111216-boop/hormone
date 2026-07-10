@@ -148,7 +148,7 @@ export function SignalRaceGame({ onDone, done }: { onDone: () => void; done: boo
                   ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                   : !pickedTransport && wrong === t.id
                     ? 'border-orange-400 bg-orange-50 text-orange-700'
-                    : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]')
+                    : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md')
               }
             >
               {t.label}
@@ -174,7 +174,7 @@ export function SignalRaceGame({ onDone, done }: { onDone: () => void; done: boo
                   (shake === tag.id ? 'animate-shake ' : '') +
                   (wrong === tag.id
                     ? 'border-orange-400 bg-orange-50 text-orange-700'
-                    : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]')
+                    : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md')
                 }
               >
                 {tag.label}
@@ -195,7 +195,7 @@ export function SignalRaceGame({ onDone, done }: { onDone: () => void; done: boo
           <Feedback type="success">{m.explain}</Feedback>
           <button
             onClick={advance}
-            className="mt-2 rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+            className="mt-2 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
           >
             {idx === MISSIONS.length - 1 ? '레이스 완주하기 🏁' : '다음 미션 →'}
           </button>

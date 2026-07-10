@@ -69,7 +69,7 @@ export function FillBlankActivity({
                   ? 'border-orange-400 bg-orange-50 text-orange-700'
                   : solved
                     ? 'border-slate-200 bg-slate-50 text-slate-400'
-                    : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]')
+                    : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md')
             }
           >
             {o}

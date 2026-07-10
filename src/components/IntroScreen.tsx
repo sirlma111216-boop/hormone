@@ -33,7 +33,7 @@ export function IntroScreen({ onGoSection1 }: { onGoSection1: () => void }) {
                 <button
                   key={i}
                   onClick={() => setIntroPrediction(i)}
-                  className="rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-left text-sm font-medium text-[#374151] transition hover:border-[#111111] hover:bg-[#f5f5f5] active:scale-[0.98]"
+                  className="rounded-lg border border-[#e5e7eb] bg-white px-4 py-3 text-left text-sm font-medium text-[#374151] transition hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md active:scale-[0.98]"
                 >
                   {p}
                 </button>
@@ -54,7 +54,7 @@ export function IntroScreen({ onGoSection1 }: { onGoSection1: () => void }) {
                   </p>
                   <button
                     onClick={onGoSection1}
-                    className="mt-4 rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+                    className="mt-4 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
                   >
                     분류 1로 확인하러 가기 →
                   </button>

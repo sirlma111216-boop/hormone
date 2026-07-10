@@ -38,7 +38,7 @@ export function PrimaryButton({
       disabled={disabled}
       className={
         'rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition ' +
-        'bg-[#111111] hover:bg-[#242424] active:scale-[0.98] ' +
+        'bg-gradient-to-r from-violet-500 to-indigo-500 shadow-md shadow-indigo-200 hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98] ' +
         'disabled:cursor-not-allowed disabled:bg-[#e5e7eb] disabled:text-[#6b7280] ' +
         className
       }
@@ -66,7 +66,7 @@ export function GhostButton({
         'rounded-lg border px-5 py-2.5 text-sm font-semibold transition active:scale-[0.98] ' +
         (active
           ? 'border-[#111111] bg-[#f5f5f5] text-[#111111] '
-          : 'border-[#e5e7eb] bg-white text-[#111111] hover:border-[#111111] hover:bg-[#f5f5f5] ') +
+          : 'border-[#e5e7eb] bg-white text-[#111111] hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md ') +
         className
       }
     >
@@ -190,7 +190,7 @@ export function SingleChoice({
                     ? 'border-orange-400 bg-orange-50 text-orange-800 '
                     : solved
                       ? 'border-[#f3f4f6] bg-[#f8f9fa] text-[#9ca3af] '
-                      : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5] ')
+                      : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md ')
               }
             >
               <span

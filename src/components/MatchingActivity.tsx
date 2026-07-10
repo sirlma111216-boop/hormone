@@ -73,8 +73,8 @@ export function MatchingActivity({
                     done
                       ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
                       : sel
-                        ? 'border-[#111111] bg-[#f5f5f5] text-[#111111] ring-2 ring-[#111111]/15'
-                        : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]',
+                        ? 'border-violet-500 bg-violet-100 text-violet-900 ring-2 ring-violet-200 shadow-md'
+                        : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md',
                   )}
                 >
                   {done && <span aria-hidden className="mr-1">✓</span>}
@@ -98,7 +98,7 @@ export function MatchingActivity({
                     btn(
                       done
                         ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                        : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5]',
+                        : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md',
                     ) + (shake === p.id ? ' animate-shake' : '')
                   }
                 >

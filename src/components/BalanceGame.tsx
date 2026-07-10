@@ -168,7 +168,7 @@ export function BalanceGame({ onDone, done }: { onDone: () => void; done: boolea
                 ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
                 : wrong === o.label && phase === 'answering'
                   ? 'border-orange-400 bg-orange-50 text-orange-700'
-                  : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[#111111] hover:bg-[#f5f5f5] disabled:opacity-60')
+                  : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md disabled:opacity-60')
             }
           >
             {o.label}
@@ -185,7 +185,7 @@ export function BalanceGame({ onDone, done }: { onDone: () => void; done: boolea
           <Feedback type="success">{s!.explain}</Feedback>
           <button
             onClick={next}
-            className="mt-2 rounded-lg bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#242424] active:scale-95"
+            className="mt-2 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
           >
             {pos === order.length - 1 ? '미션 완수 🏅' : '다음 상황 →'}
           </button>
