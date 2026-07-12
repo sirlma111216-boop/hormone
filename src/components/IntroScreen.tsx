@@ -17,9 +17,14 @@ export function IntroScreen({ onGoSection1 }: { onGoSection1: () => void }) {
 
   return (
     <Panel className="mb-6 overflow-hidden">
-      <div className="grid gap-6 p-6 sm:grid-cols-[minmax(0,280px)_1fr] sm:items-center sm:p-8">
-        <ImageOrFallback src="/assets/sauna_intro.png" alt="찜질방 체온 유지" fallback={<SaunaFallback />} />
-        <div>
+      <div className="p-5 sm:p-8">
+        <ImageOrFallback
+          src="/assets/sauna_intro.png"
+          alt="찜질방 체온 유지"
+          fallback={<SaunaFallback />}
+          className="mx-auto max-w-2xl"
+        />
+        <div className="mx-auto mt-6 max-w-2xl">
           <span className="inline-block rounded-full bg-[#f5f5f5] px-3 py-1 text-xs font-semibold text-[#111111]">
             도입 미션 · 예측으로 시작
           </span>
