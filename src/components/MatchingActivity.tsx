@@ -9,7 +9,7 @@ export interface MatchPair {
 }
 
 /**
- * 두 열 짝 맞추기 (터치/마우스/키보드).
+ * 두 열 짝 맞추기 (터치/마우스/키보드) — "호르몬 도감 완성" 테마.
  * 왼쪽 카드를 누르고 → 오른쪽 카드를 누르면 연결된다. 맞으면 한 세트로 완성.
  */
 export function MatchingActivity({
@@ -33,7 +33,10 @@ export function MatchingActivity({
   const [selLeft, setSelLeft] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
   const [shake, setShake] = useState<string | null>(null)
+  const [pop, setPop] = useState<string | null>(null)
   const [solved, setSolved] = useState(!!solvedProp)
+
+  const matchedCount = solved ? pairs.length : Object.keys(matched).length
 
   const tryMatch = (rightId: string) => {
     if (!selLeft || solved) return
@@ -41,6 +44,8 @@ export function MatchingActivity({
       const next = { ...matched, [rightId]: true }
       setMatched(next)
       setSelLeft(null)
+      setPop(rightId)
+      setTimeout(() => setPop(null), 350)
       if (Object.keys(next).length === pairs.length) {
         setSolved(true)
         onSolved()
@@ -57,6 +62,28 @@ export function MatchingActivity({
 
   return (
     <div>
+      {/* 상단 안내 + 도감 진행률 */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-violet-50 px-4 py-2.5 ring-1 ring-violet-200">
+        <p className="text-sm font-bold text-violet-900">
+          {solved
+            ? '📇 호르몬 도감을 완성했어요!'
+            : selLeft
+              ? '② 오른쪽에서 알맞은 기능을 골라 연결하세요'
+              : '① 왼쪽에서 카드를 먼저 고르세요'}
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-violet-700 ring-1 ring-violet-200">
+            📇 도감 {matchedCount} / {pairs.length}
+          </span>
+          <div className="hidden h-2 w-24 overflow-hidden rounded-full bg-white ring-1 ring-violet-200 sm:block">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all"
+              style={{ width: `${(matchedCount / pairs.length) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
           <p className="mb-1.5 text-xs font-bold text-slate-500">{leftTitle}</p>
@@ -73,11 +100,15 @@ export function MatchingActivity({
                     done
                       ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
                       : sel
-                        ? 'border-violet-500 bg-violet-100 text-violet-900 ring-2 ring-violet-200 shadow-md'
+                        ? 'border-violet-500 bg-violet-100 text-violet-900 ring-2 ring-violet-300 shadow-md scale-[1.02]'
                         : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md',
                   )}
                 >
-                  {done && <span aria-hidden className="mr-1">✓</span>}
+                  {done ? (
+                    <span aria-hidden className="mr-1">✓</span>
+                  ) : (
+                    <span aria-hidden className="mr-1 text-violet-400">{sel ? '👉' : '📇'}</span>
+                  )}
                   {p.left}
                 </button>
               )
@@ -98,8 +129,12 @@ export function MatchingActivity({
                     btn(
                       done
                         ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                        : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md',
-                    ) + (shake === p.id ? ' animate-shake' : '')
+                        : selLeft
+                          ? 'border-violet-300 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-500 hover:bg-violet-50 hover:shadow-md'
+                          : 'border-slate-200 bg-white text-slate-500 shadow-sm',
+                    ) +
+                    (shake === p.id ? ' animate-shake' : '') +
+                    (pop === p.id ? ' animate-pop' : '')
                   }
                 >
                   {done && <span aria-hidden className="mr-1">✓</span>}
@@ -111,13 +146,8 @@ export function MatchingActivity({
         </div>
       </div>
 
-      {!solved && (
-        <p className="mt-2 text-xs text-slate-400">
-          {selLeft ? '오른쪽에서 짝을 고르세요.' : '왼쪽 카드를 먼저 고르세요.'}
-        </p>
-      )}
       {!solved && <HintBox hints={hints} attempt={attempt} />}
-      {solved && <Feedback type="success">모든 짝을 완성했어요! 호르몬 도감이 채워졌어요.</Feedback>}
+      {solved && <Feedback type="success">모든 짝을 완성했어요! 호르몬 도감이 가득 찼어요.</Feedback>}
     </div>
   )
 }

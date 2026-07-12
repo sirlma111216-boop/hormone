@@ -46,11 +46,10 @@ export const SECTIONS: SectionMeta[] = [
       '항상성은 정상 범위에서 벗어난 값을 다시 정상 범위로 되돌리는 조절 과정임을 이해한다.',
     ],
     activities: [
-      { id: '3-1', section: 'section3', title: '체온 조절 관제실', subtitle: '더울 때·추울 때', icon: '🌡️' },
-      { id: '3-2', section: 'section3', title: '체온 조절 순서 배열', subtitle: '두 경로 완성', icon: '🔀' },
-      { id: '3-3', section: 'section3', title: '혈당량 조절 실험실', subtitle: '인슐린·글루카곤', icon: '🧪' },
-      { id: '3-4', section: 'section3', title: '항상성 밸런스 게임', subtitle: '통합 최종 미션', icon: '🎮' },
-      { id: '3-5', section: 'section3', title: '되돌림 화살표 완성', subtitle: '공통 원리 정리', icon: '🔁' },
+      { id: '3-1', section: 'section3', title: '체온·혈당 그림 정리', subtitle: '교과서 그림 확인', icon: '📖' },
+      { id: '3-2', section: 'section3', title: '체온 조절 관제실', subtitle: '실시간 게임', icon: '🌡️' },
+      { id: '3-3', section: 'section3', title: '혈당량 조절 실험실', subtitle: '실시간 게임', icon: '📈' },
+      { id: '3-4', section: 'section3', title: '되돌림 화살표 완성', subtitle: '공통 원리 정리', icon: '🔁' },
     ],
   },
 ]

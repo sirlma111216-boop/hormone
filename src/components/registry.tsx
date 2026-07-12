@@ -3,9 +3,10 @@ import { Activity11, Activity12, Activity13 } from './Section1Activities'
 import { SignalRaceGame } from './SignalRaceGame'
 import { Activity21, Activity22, Activity23 } from './Section2Activities'
 import { HormoneTriageGame } from './HormoneTriageGame'
+import { Section3Review } from './Section3Review'
 import { TemperatureControlGame } from './TemperatureControlGame'
-import { Activity32, Activity33, Activity35 } from './Section3Activities'
-import { BalanceGame } from './BalanceGame'
+import { BloodGlucoseGame } from './BloodGlucoseGame'
+import { Activity35 } from './Section3Activities'
 
 export interface ActivityProps {
   onDone: () => void
@@ -21,9 +22,8 @@ export const ACTIVITY_COMPONENTS: Record<string, FC<ActivityProps>> = {
   '2-2': Activity22,
   '2-3': Activity23,
   '2-4': HormoneTriageGame,
-  '3-1': TemperatureControlGame,
-  '3-2': Activity32,
-  '3-3': Activity33,
-  '3-4': BalanceGame,
-  '3-5': Activity35,
+  '3-1': Section3Review,
+  '3-2': TemperatureControlGame,
+  '3-3': BloodGlucoseGame,
+  '3-4': Activity35,
 }

@@ -1,192 +1,276 @@
-import { useState } from 'react'
-import { HOT_REACTIONS, COLD_REACTIONS, type ReactionCard } from '../data/homeostasis'
-import { Feedback } from './ui'
-import { RefNote } from './shared'
+import { useEffect, useReducer, useRef } from 'react'
+import { shuffle } from '../lib/util'
 
-interface Round {
-  key: 'hot' | 'cold'
-  title: string
-  cards: ReactionCard[]
-  tempLabel: string
-  tempColor: string
+/* ===== 실시간 체온 조절 게임 =====
+ * 시작하면 환경이 체온을 랜덤하게 올리거나 내린다.
+ * 아래 조절 카드(혈관 확장/수축·땀·떨림·티록신)를 눌러 정상 범위(36.5~37.5℃)로 유지.
+ * 정상 범위 안에서 누적 30초를 버티면 성공 → 정리 표.
+ */
+
+interface Card {
+  id: string
+  label: string
+  icon: string
+  kind: '신경' | '호르몬'
+  delta: number // 한 번 누를 때 체온 변화(℃). 음수=낮춤, 양수=높임
 }
 
-const ROUNDS: Round[] = [
-  { key: 'hot', title: '☀️ 더운 상황', cards: HOT_REACTIONS, tempLabel: '체온 ↑ (정상보다 높음)', tempColor: 'bg-orange-400' },
-  { key: 'cold', title: '❄️ 추운 상황', cards: COLD_REACTIONS, tempLabel: '체온 ↓ (정상보다 낮음)', tempColor: 'bg-sky-400' },
+const CARDS: Card[] = [
+  { id: 'vasodil', label: '피부 혈관 확장', icon: '🌊', kind: '신경', delta: -0.33 },
+  { id: 'sweat', label: '땀 분비 증가', icon: '💧', kind: '신경', delta: -0.33 },
+  { id: 'vasocon', label: '피부 혈관 수축', icon: '🧤', kind: '신경', delta: 0.33 },
+  { id: 'shiver', label: '몸 떨림', icon: '🥶', kind: '신경', delta: 0.33 },
+  { id: 'thyroxine', label: '티록신 분비 증가', icon: '🔥', kind: '호르몬', delta: 0.33 },
 ]
 
+const LOW = 36.5
+const HIGH = 37.5
+const MIN = 34.5
+const MAX = 39.5
+const TARGET = 30 // 누적 안정 목표(초)
+
+type Phase = 'ready' | 'playing' | 'won'
+
+interface Game {
+  temp: number
+  envDir: number // +면 더워짐(체온↑), -면 추워짐(체온↓)
+  envRate: number // ℃/s
+  envUntil: number
+  stable: number // 누적 안정 시간(초)
+  elapsed: number
+  last: number
+  phase: Phase
+}
+
+function freshGame(phase: Phase): Game {
+  return { temp: 37, envDir: 0, envRate: 0, envUntil: 0, stable: 0, elapsed: 0, last: 0, phase }
+}
+
 export function TemperatureControlGame({ onDone, done }: { onDone: () => void; done: boolean }) {
-  const [round, setRound] = useState(done ? ROUNDS.length : 0)
-  const [tags, setTags] = useState<Record<string, ReactionCard['kind']>>({})
-  const [pending, setPending] = useState<string | null>(null)
-  const [msg, setMsg] = useState<{ type: 'rebut' | 'hint'; text: string } | null>(null)
-  const [shake, setShake] = useState<string | null>(null)
+  const cards = useRef(shuffle(CARDS)).current
+  const g = useRef<Game>(freshGame(done ? 'won' : 'ready'))
+  const raf = useRef<number | undefined>(undefined)
+  const [, render] = useReducer((x) => x + 1, 0)
 
-  if (done || round >= ROUNDS.length) {
-    return (
-      <Feedback type="success">
-        더울 때는 열을 내보내고, 추울 때는 열을 지키고 만들어요. 신경과 호르몬이 함께 작용한다는 걸
-        확인했어요!
-      </Feedback>
-    )
+  const stop = () => {
+    if (raf.current !== undefined) cancelAnimationFrame(raf.current)
+    raf.current = undefined
   }
 
-  const r = ROUNDS[round]
-  const correctCards = r.cards.filter((c) => c.correct)
-  const taggedCount = correctCards.filter((c) => tags[c.id]).length
-  const roundComplete = taggedCount === correctCards.length
+  useEffect(() => () => stop(), [])
 
-  const flash = (id: string) => {
-    setShake(id)
-    setTimeout(() => setShake(null), 450)
-  }
+  const loop = (now: number) => {
+    const s = g.current
+    const dt = Math.min(0.05, (now - s.last) / 1000)
+    s.last = now
 
-  const tapCard = (c: ReactionCard) => {
-    if (tags[c.id]) return
-    if (!c.correct) {
-      flash(c.id)
-      setMsg({
-        type: 'rebut',
-        text: `'${c.label}' 은(는) ${r.key === 'hot' ? '더울' : '추울'} 때의 반응이 아니에요. 반대 상황의 반응이랍니다.`,
-      })
-      return
+    // 환경 갱신
+    if (s.elapsed >= s.envUntil) {
+      s.envDir = Math.random() < 0.5 ? 1 : -1
+      s.envRate = 0.2 + Math.random() * 0.25 // 0.20~0.45 ℃/s
+      s.envUntil = s.elapsed + 2.6 + Math.random() * 2
     }
-    setPending(c.id)
-    setMsg(null)
-  }
+    s.temp += s.envDir * s.envRate * dt + (Math.random() - 0.5) * 0.01
+    if (s.temp < MIN) s.temp = MIN
+    if (s.temp > MAX) s.temp = MAX
 
-  const chooseKind = (kind: ReactionCard['kind']) => {
-    const c = r.cards.find((x) => x.id === pending)!
-    if (kind === c.kind) {
-      const nextTags = { ...tags, [c.id]: kind }
-      setTags(nextTags)
-      setPending(null)
-      setMsg(null)
-    } else {
-      setMsg({
-        type: 'hint',
-        text:
-          kind === '신경'
-            ? '혈관·땀·떨림처럼 빠른 반응은 신경이지만, 갑상샘·티록신·세포 호흡은 호르몬의 작용이에요.'
-            : '티록신·세포 호흡은 호르몬이지만, 혈관·땀·떨림은 신경의 작용이에요.',
-      })
+    const inBand = s.temp >= LOW && s.temp <= HIGH
+    if (inBand) s.stable += dt
+    s.elapsed += dt
+
+    if (s.stable >= TARGET) {
+      s.phase = 'won'
+      stop()
+      onDone()
     }
+    render()
+    if (s.phase === 'playing') raf.current = requestAnimationFrame(loop)
   }
 
-  const nextRound = () => {
-    const n = round + 1
-    setRound(n)
-    setTags({})
-    setPending(null)
-    setMsg(null)
-    if (n >= ROUNDS.length) onDone()
+  const start = () => {
+    g.current = freshGame('playing')
+    g.current.last = performance.now()
+    render()
+    raf.current = requestAnimationFrame(loop)
   }
+
+  const tap = (delta: number) => {
+    const s = g.current
+    if (s.phase !== 'playing') return
+    s.temp = Math.max(MIN, Math.min(MAX, s.temp + delta))
+    render()
+  }
+
+  const s = g.current
+  const pct = ((s.temp - MIN) / (MAX - MIN)) * 100
+  const bandLeft = ((LOW - MIN) / (MAX - MIN)) * 100
+  const bandRight = ((HIGH - MIN) / (MAX - MIN)) * 100
+  const inBand = s.temp >= LOW && s.temp <= HIGH
+  const tempColor = inBand ? 'text-emerald-600' : s.temp > HIGH ? 'text-orange-500' : 'text-sky-500'
 
   return (
     <div>
-      <RefNote>
-        정상 체온은 약 <b>37 ℃</b>. 체온 조절은 <b>신경의 작용</b>과 <b>호르몬의 작용</b>이 함께
-        일어나요. (티록신에 의한 체온 조절은 특히 어린아이에게서 두드러집니다.)
-      </RefNote>
-
-      {/* 게이지 */}
-      <div className="mb-4 rounded-xl bg-white p-3 ring-1 ring-slate-200">
-        <div className="mb-1 flex items-center justify-between text-xs font-bold text-slate-500">
-          <span>{r.title}</span>
-          <span>{r.tempLabel}</span>
+      {/* 체온 현황표 */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-2 flex items-end justify-between">
+          <span className="text-xs font-bold text-slate-500">🌡️ 체온 현황</span>
+          <span className={'text-2xl font-extrabold tabular-nums ' + tempColor}>
+            {s.temp.toFixed(1)} ℃
+          </span>
         </div>
-        <div className="relative h-3 rounded-full bg-slate-100">
-          <div className="absolute left-1/2 top-1/2 h-5 w-0.5 -translate-x-1/2 -translate-y-1/2 bg-emerald-500" />
+        <div className="relative h-5 rounded-full bg-gradient-to-r from-sky-100 via-emerald-100 to-orange-100">
+          {/* 정상 범위 */}
           <div
-            className={`absolute top-0 h-3 rounded-full ${r.tempColor} ${r.key === 'hot' ? 'left-1/2 right-2' : 'left-2 right-1/2'}`}
+            className="absolute top-0 h-5 rounded bg-emerald-300/50 ring-1 ring-emerald-400"
+            style={{ left: `${bandLeft}%`, width: `${bandRight - bandLeft}%` }}
+          />
+          {/* 마커 */}
+          <div
+            className="absolute top-1/2 h-7 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
+            style={{ left: `${pct}%`, background: inBand ? '#10b981' : s.temp > HIGH ? '#f97316' : '#0ea5e9' }}
           />
         </div>
-        <p className="mt-1 text-center text-[11px] text-slate-400">
-          가운데 초록선 = 정상 체온(37 ℃). 알맞은 반응을 골라 정상으로 되돌려요.
-        </p>
-      </div>
+        <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+          <span>{MIN}℃</span>
+          <span className="font-bold text-emerald-600">정상 36.5~37.5℃</span>
+          <span>{MAX}℃</span>
+        </div>
 
-      <p className="mb-2 text-sm font-bold text-slate-600">
-        이 상황에 알맞은 몸의 반응을 모두 골라, 신경 / 호르몬으로 태그하세요. ({taggedCount}/
-        {correctCards.length})
-      </p>
-
-      <div className="flex flex-wrap gap-2">
-        {r.cards.map((c) => {
-          const tagged = tags[c.id]
-          return (
-            <button
-              key={c.id}
-              onClick={() => tapCard(c)}
-              disabled={!!tagged}
-              className={
-                'rounded-xl border px-3 py-2.5 text-sm font-medium transition active:scale-95 ' +
-                (shake === c.id ? 'animate-shake ' : '') +
-                (tagged
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                  : pending === c.id
-                    ? 'border-violet-500 bg-violet-100 text-violet-900 ring-2 ring-violet-200 shadow-md'
-                    : 'border-slate-200 bg-white text-slate-700 shadow-sm hover:-translate-y-0.5 hover:border-violet-400 hover:bg-violet-50 hover:shadow-md')
-              }
-            >
-              {tagged && <span aria-hidden className="mr-1">✓</span>}
-              {c.label}
-              {tagged && (
-                <span
-                  className={
-                    'ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold ' +
-                    (tagged === '신경' ? 'bg-[#111111] text-white' : 'bg-amber-500 text-white')
-                  }
-                >
-                  {tagged === '신경' ? '⚡신경' : '🩸호르몬'}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* 태그 선택 */}
-      {pending && (
-        <div className="animate-pop mt-3 rounded-xl bg-[#f5f5f5] p-3 ring-1 ring-[#e5e7eb]">
-          <p className="mb-2 text-sm font-semibold text-[#111111]">
-            이 반응은 신경의 작용일까요, 호르몬의 작용일까요?
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => chooseKind('신경')}
-              className="rounded-lg border border-[#111111] bg-white px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f5f5f5]"
-            >
-              ⚡ 신경의 작용
-            </button>
-            <button
-              onClick={() => chooseKind('호르몬')}
-              className="rounded-lg border border-amber-400 bg-white px-4 py-2 text-sm font-bold text-amber-700 hover:bg-amber-50"
-            >
-              🩸 호르몬의 작용
-            </button>
+        {/* 안정 유지 progress */}
+        <div className="mt-3">
+          <div className="mb-1 flex justify-between text-xs font-bold text-slate-500">
+            <span>정상 범위 유지</span>
+            <span className="text-emerald-600">{s.stable.toFixed(1)} / {TARGET}초</span>
           </div>
+          <div className="h-2.5 w-full rounded-full bg-slate-100">
+            <div
+              className="h-2.5 rounded-full bg-emerald-500 transition-[width] duration-100"
+              style={{ width: `${Math.min(100, (s.stable / TARGET) * 100)}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 환경 신호 */}
+      {s.phase === 'playing' && (
+        <div
+          className={
+            'animate-pop mt-3 rounded-xl px-4 py-2.5 text-center text-sm font-bold ring-1 ' +
+            (s.envDir > 0
+              ? 'bg-orange-50 text-orange-700 ring-orange-200'
+              : 'bg-sky-50 text-sky-700 ring-sky-200')
+          }
+        >
+          {s.envDir > 0
+            ? '☀️ 더워지고 있어요! (체온 ↑) → 체온을 낮추는 반응을 쓰세요'
+            : '❄️ 추워지고 있어요! (체온 ↓) → 체온을 높이는 반응을 쓰세요'}
         </div>
       )}
 
-      {msg && <Feedback type={msg.type}>{msg.text}</Feedback>}
-
-      {roundComplete && (
-        <div className="animate-pop">
-          <Feedback type="success">
-            {r.key === 'hot'
-              ? '더울 때: 피부 혈관 확장·땀 분비로 열을 내보내 체온을 낮춰요.'
-              : '추울 때: 혈관 수축(신경)으로 열을 지키고, 떨림·티록신(호르몬)으로 열을 만들어요.'}
-          </Feedback>
+      {/* 시작 전 / 성공 후 */}
+      {s.phase === 'ready' && (
+        <div className="mt-4 text-center">
+          <p className="mb-3 text-sm text-slate-600">
+            시작하면 환경이 체온을 올리거나 내려요. 아래 <b>조절 카드</b>를 눌러 체온을
+            <b> 정상 범위(초록 띠)</b>에 <b>30초</b> 동안 유지해 보세요!
+          </p>
           <button
-            onClick={nextRound}
-            className="mt-2 rounded-lg bg-gradient-to-r from-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
+            onClick={start}
+            className="rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 px-6 py-3 text-base font-bold text-white shadow-lg shadow-indigo-200 transition hover:-translate-y-0.5 hover:shadow-xl active:scale-95"
           >
-            {round === ROUNDS.length - 1 ? '체온 조절 완료 ✅' : '다음: 추운 상황 →'}
+            🚀 관제 시작
           </button>
         </div>
       )}
+
+      {/* 조절 카드 */}
+      {s.phase === 'playing' && (
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          {cards.map((c) => {
+            const lower = c.delta < 0
+            return (
+              <button
+                key={c.id}
+                onClick={() => tap(c.delta)}
+                className={
+                  'flex flex-col items-center gap-0.5 rounded-xl border-2 px-2 py-3 text-center transition active:scale-95 ' +
+                  (lower
+                    ? 'border-sky-200 bg-sky-50 text-sky-800 hover:-translate-y-0.5 hover:border-sky-400 hover:shadow-md'
+                    : 'border-orange-200 bg-orange-50 text-orange-800 hover:-translate-y-0.5 hover:border-orange-400 hover:shadow-md')
+                }
+              >
+                <span className="text-xl" aria-hidden>{c.icon}</span>
+                <span className="text-xs font-bold leading-tight">{c.label}</span>
+                <span
+                  className={
+                    'mt-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ' +
+                    (lower ? 'bg-sky-500 text-white' : 'bg-orange-500 text-white')
+                  }
+                >
+                  체온 {lower ? '↓' : '↑'} · {c.kind}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {s.phase === 'won' && <WonSummary onReplay={start} />}
+    </div>
+  )
+}
+
+function WonSummary({ onReplay }: { onReplay: () => void }) {
+  return (
+    <div className="mt-4">
+      <div className="rounded-2xl bg-emerald-600 p-5 text-center text-white">
+        <div className="animate-float text-4xl">🌡️🏅</div>
+        <p className="font-display mt-2 text-lg font-bold">체온 조절 성공!</p>
+        <p className="mt-1 text-sm text-emerald-50">
+          정상 범위(약 37℃)를 30초간 잘 유지했어요. 몸도 이렇게 신경과 호르몬으로 체온을 지킨답니다.
+        </p>
+      </div>
+
+      <h3 className="mt-4 mb-2 flex items-center gap-2 text-sm font-extrabold text-[#111111]">
+        <span className="h-2 w-2 rounded bg-[#111111]" /> 정리 · 체온 조절
+      </h3>
+      <div className="overflow-hidden rounded-xl border border-slate-200">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-100 text-left text-xs">
+              <th className="px-3 py-2">상황</th>
+              <th className="px-3 py-2">몸의 조절 반응</th>
+              <th className="px-3 py-2">구분</th>
+            </tr>
+          </thead>
+          <tbody className="[&_td]:border-t [&_td]:border-slate-200 [&_td]:px-3 [&_td]:py-2">
+            <tr>
+              <td className="font-bold text-orange-600">더울 때<br />(체온 ↑)</td>
+              <td>피부 혈관 확장 · 땀 분비 증가 → 열 방출 ↑ → 체온 ↓</td>
+              <td>신경</td>
+            </tr>
+            <tr>
+              <td className="font-bold text-sky-600" rowSpan={2}>추울 때<br />(체온 ↓)</td>
+              <td>피부 혈관 수축 · 몸 떨림 → 열 방출 ↓ · 열 발생 ↑</td>
+              <td>신경</td>
+            </tr>
+            <tr>
+              <td>티록신 분비 증가 → 세포 호흡 촉진 → 열 발생 ↑</td>
+              <td>호르몬</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-sm font-semibold text-emerald-700">
+        ▶ 체온 조절은 신경의 작용과 호르몬의 작용이 함께 일어난다.
+      </p>
+
+      <button
+        onClick={onReplay}
+        className="mt-3 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-[#111111] hover:bg-slate-50"
+      >
+        ↻ 다시 도전
+      </button>
     </div>
   )
 }
