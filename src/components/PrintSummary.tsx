@@ -1,5 +1,4 @@
 import type { ReactNode, CSSProperties } from 'react'
-import { HORMONES } from '../data/hormones'
 import { SECTIONS } from '../data/sections'
 import { TEXTBOOK_IMAGES } from '../data/textbook'
 import { useProgress } from '../store'
@@ -8,6 +7,7 @@ import {
   NerveHormoneFallback,
   GlucoseLoopFallback,
   TempControlFallback,
+  BodySilhouette,
 } from './diagrams'
 
 const UNIT = 'Ⅳ. 자극과 반응 · 몸의 기능을 조절하는 호르몬 / 항상성'
@@ -244,11 +244,41 @@ function Section1Sheet() {
   )
 }
 
+// 몸속 호르몬 지도: 교과서 내분비샘 위치 그림 + 내분비샘·호르몬 표
+const GLAND_MAP = [
+  { gland: '뇌하수체', pos: '뇌 아래쪽', hormone: '성장 호르몬 — 몸의 성장 촉진' },
+  { gland: '갑상샘', pos: '목 앞쪽', hormone: '티록신 — 세포 호흡·물질대사 촉진' },
+  { gland: '부신', pos: '콩팥(신장) 위', hormone: '아드레날린 — 혈당량 ↑ · 심장 박동 ↑' },
+  { gland: '이자', pos: '위의 뒤쪽', hormone: '인슐린 — 혈당량 ↓ / 글루카곤 — 혈당량 ↑' },
+  { gland: '난소', pos: '여자 생식 기관', hormone: '여성 호르몬 — 여자의 2차 성징' },
+  { gland: '정소', pos: '남자 생식 기관', hormone: '남성 호르몬 — 남자의 2차 성징' },
+]
+
+function GlandMapBlock() {
+  return (
+    <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      <div style={{ width: 152, flexShrink: 0 }}>
+        <ImageOrFallback
+          src="/assets/endocrine_glands.png"
+          alt="내분비샘 위치 그림"
+          fallback={<BodySilhouette />}
+        />
+      </div>
+      <div style={{ flex: '1 1 300px', minWidth: 0 }}>
+        <Table
+          head={['내분비샘', '위치', '분비 호르몬 · 기능']}
+          rows={GLAND_MAP.map((m) => [<b key="g">{m.gland}</b>, m.pos, m.hormone])}
+        />
+      </div>
+    </div>
+  )
+}
+
 function Section2Sheet() {
   return (
     <Sheet subtitle="정리본 2 · 호르몬의 종류와 기능">
-      <H3>내분비샘 · 호르몬 · 기능</H3>
-      <Table head={['내분비샘', '호르몬', '기능']} rows={HORMONES.map((h) => [h.gland, h.hormone, h.function])} />
+      <H3>몸속 호르몬 지도 · 내분비샘과 분비 호르몬</H3>
+      <GlandMapBlock />
 
       <H3>호르몬 과다·결핍 시 나타나는 문제</H3>
       <Table
@@ -264,16 +294,6 @@ function Section2Sheet() {
         ▶ <b>호르몬은 너무 많거나 너무 적어도</b> 몸의 기능 조절에 문제가 생길 수 있다.
         <span style={{ color: '#6b7280', fontSize: '9pt' }}> (학습용 개념 예시이며 실제 진단이 아님)</span>
       </Concept>
-
-      <H3>학습 그림</H3>
-      <FigureRow>
-        <Figure caption="교과서: 호르몬의 종류와 기능">
-          <TextbookImg src={TEXTBOOK_IMAGES.section2[0].src} alt="구역 2 교과서 그림 1" />
-        </Figure>
-        <Figure caption="교과서: 과다증과 결핍증">
-          <TextbookImg src={TEXTBOOK_IMAGES.section2[1].src} alt="구역 2 교과서 그림 2" />
-        </Figure>
-      </FigureRow>
 
       <DoneList sectionId="section2" />
     </Sheet>
